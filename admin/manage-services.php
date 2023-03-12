@@ -70,7 +70,7 @@ include('includes/dtables.php');
 				
 					<div class="table-responsive bs-example widget-shadow">
 						<h4>Update Services:</h4>
-						<table class="table table-bordered" id="dataTable"> <thead> <tr> <th>#</th> <th>Service Name</th> <th>Service Price</th> <th>Creation Date</th><th>Action</th> </tr> </thead> <tbody>
+						<table class="table table-bordered" id="dataTable"> <thead> <tr> <th>#</th><th> Type</th> <th>Service Name</th> <th>Service Price</th> <th>Creation Date</th><th>Action</th> </tr> </thead> <tbody>
 <?php
 $ret=mysqli_query($con,"select *from  tblservices");
 $cnt=1;
@@ -78,7 +78,7 @@ while ($row=mysqli_fetch_array($ret)) {
 
 ?>
 
-						 <tr> <th scope="row"><?php echo $cnt;?></th> <td><?php  echo $row['ServiceName'];?></td> <td><?php  echo $row['Cost'];?></td><td><?php  echo $row['CreationDate'];?></td> <td>
+						 <tr> <th scope="row"><?php echo $cnt;?></th> <td><?php  echo $row['type'];?></td><td><?php  echo $row['ServiceName'];?></td> <td><?php  echo $row['Cost'];?></td><td><?php  echo $row['CreationDate'];?></td> <td>
 						 	<a href="edit-services.php?editid=<?php echo $row['ID'];?>" class="btn btn-primary">Edit</a>
 						 	<a href="manage-services.php?delid=<?php echo $row['ID'];?>" class="btn btn-danger" onClick="return confirm('Are you sure you want to delete?')">Delete</a>
 

@@ -17,12 +17,13 @@ if(isset($_POST['submit']))
     $msg=$_POST['message'];
     $atime = $_POST['appoint_time'].':00:00';
     $end_time = $_POST['appoint_time'] + 1 . ':00:00';
+    $type = 'online';
     
     // echo $atime. " ". $end_time;
     // echo "<script>alert('$end_time');</script>";
 
-    $query=mysqli_query($con,"insert into tblbook(UserID,AptNumber,AptDate,AptTime,Message,appt_to
-    ) value('$uid','$aptnumber','$adate','$atime','$msg','$end_time')");
+    $query=mysqli_query($con,"insert into tblbook(UserID,AptNumber,AptDate,AptTime,Message,appt_to,type
+    ) value('$uid','$aptnumber','$adate','$atime','$msg','$end_time', $type)");
 
     if ($query) {
 $ret=mysqli_query($con,"select AptNumber from tblbook where tblbook.UserID='$uid' order by ID desc limit 1;");
@@ -155,16 +156,18 @@ while ($row=mysqli_fetch_array($ret)) {
                     
 
                       <div style="padding-top: 30px;">
-
                             <label>Select Services</label>
                             
-                            <select id="main-category">
+                            <select id="services">
                                 <option value="">Select Type of Services:</option>
-                                <option value="Category A">Haircut Only</option>
-                                <option value="Category B">Full Groom</option>
-                                <option value="Category C">Alacarte</option>
+                                <option value="haircut">Haircut Only</option>
+                                <option value="full_groom">Full Groom</option>
+                                <option value="alacarte">Alacarte</option>
                           </select>
+                        </div>
 
+                        <div id="services-container">
+                            <div id="services-options"></div>
                         </div>
                            
 
@@ -240,48 +243,27 @@ while ($row=mysqli_fetch_array($ret)) {
 <button onclick="topFunction()" id="movetop" title="Go to top">
     <span class="fa fa-long-arrow-up"></span>
 </button>
-<script>
-  const mainCategory = document.querySelector("#main-category");
-  const subCategory = document.querySelector("#sub-category");
 
-  mainCategory.addEventListener("change", function() {
-    switch (mainCategory.value) {
-      case "Category A":
-        subCategory.innerHTML = `
-          <h3>Select Haircut Dog Size</h3>
-          <label><input type="radio" name="size[]" value="SMALL" class="custom-checkbox"> SMALL ₱ 199.00</label><br>
-          <label><input type="radio" name="size[]" value="MEDIUM" class="custom-checkbox"> MEDIUM ₱ 249.00</label><br>
-          <label><input type="radio" name="size[]" value="LARGE" class="custom-checkbox"> LARGE ₱ 300.00</label><br>
-          <label><input type="radio" name="size[]" value="EXTRA LARGE"class=" custom-checkbox"> EXTRA LARGE ₱ 350.00</label><br>
-        `;
-        break;
-      case "Category B":
-        subCategory.innerHTML = `
-          <h3>Select Full Groom Dog Size</h3>
-          <label><input type="radio" name="size[]" value="SMALL" class="custom-checkbox"> SMALL ₱ 300.00</label><br>
-          <label><input type="radio" name="size[]" value="MEDIUM" class="custom-checkbox"> MEDIUM ₱ 350.00</label><br>
-          <label><input type="radio" name="size[]" value="LARGE" class="custom-checkbox"> LARGE ₱ 450.00</label><br>
-          <label><input type="radio" name="size[]" value="EXTRA LARGE"class=" custom-checkbox"> EXTRA LARGE ₱ 550.00</label><br>
-          <label><input type="radio" name="size[]" value="DOUBLE EXTRA LARGE" class="custom-checkbox"> DOUBLE EXTRA LARGE ₱ 650.00</label><br>
-        ` 
-        break;
-      case "Category C":
-        subCategory.innerHTML = `
-          <h3>Select Alacarte for your Dog:</h3>
-          <label><input type="checkbox" name="alacarte[]" value="NAIL CLIPPING"> NAIL CLIPPING ₱ 50.00</label><br>
-          <label><input type="checkbox" name="alacarte[]" value="PAW TRIM"> PAW TRIM ₱ 75.00</label><br>
-          <label><input type="checkbox" name="alacarte[]" value="EAR CLEANING"> EAR CLEANING ₱ 50.00</label><br>
-          <label><input type="checkbox" name="alacarte[]" value="FACE TRIM"> FACE TRIM ₱ 100.00</label><br>
-          <label><input type="checkbox" name="alacarte[]" value="EAR PLUCKING"> EAR PLUCKING ₱ 50.00</label><br>
-        `;
-        break;
-      default:
-        subCategory.innerHTML = `
-      
-        `;
-    }
-  });
+
+<script>
+    $('#services').on('change', function (){
+        $('#services-container #services-options').remove();
+        var opt = $(this).val();
+
+        $.ajax({
+            type : 'GET',
+            url  : 'get_services.php',
+            data : { 'service' : opt },
+            success : function (response) {
+                result = JSON.parse(response);
+                $.each(result, function (i, v) {;
+                    $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
+                });
+            }
+        })
+    })
 </script>
+
 <script>
     // When the user scrolls down 20px from the top of the document, show the button
     window.onscroll = function () {

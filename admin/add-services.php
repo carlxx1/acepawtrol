@@ -8,6 +8,7 @@ if (strlen($_SESSION['bpmsaid']==0)) {
 
 if(isset($_POST['submit']))
   {
+  	$type=$_POST['type'];
     $sername=$_POST['sername'];
     $serdesc=$_POST['serdesc'];
     $cost=$_POST['cost'];
@@ -29,7 +30,7 @@ $newimage=md5($image).time().$extension;
 // Code for move image into directory
 move_uploaded_file($_FILES["image"]["tmp_name"],"images/".$newimage);
      
-    $query=mysqli_query($con, "insert into  tblservices(ServiceName,ServiceDescription,Cost,Image) value('$sername','$serdesc','$cost','$newimage')");
+    $query=mysqli_query($con, "insert into  tblservices(type,ServiceName,ServiceDescription,Cost,Image) value('$type','$sername','$serdesc','$cost','$newimage')");
     if ($query) {
     	echo "<script>alert('Service has been added.');</script>"; 
     		echo "<script>window.location.href = 'add-services.php'</script>";   
@@ -96,16 +97,27 @@ move_uploaded_file($_FILES["image"]["tmp_name"],"images/".$newimage);
 						</div>
 						<div class="form-body">
 							<form method="post" enctype="multipart/form-data">
-								<p style="font-size:16px; color:red" align="center"> <?php if($msg){
-    echo $msg;
-  }  ?> </p>
+								<p style="font-size:16px; color:red" align="center"> <?php if($msg){ echo $msg; }  ?> </p>
+
+								<div class="form-group"> 
+							 		<label for="exampleInputEmail1">Service Type</label> 
+							 		<select name="type">
+							 			<option value="full_groom">Full Groom</option>
+							 			<option value="haircut">Haircut</option>
+							 			<option value="alacarte">Alacarte</option>
+							 		</select>
+							 </div>
 
   
-							 <div class="form-group"> <label for="exampleInputEmail1">Service Name</label> <input type="text" class="form-control" id="sername" name="sername" placeholder="Service Name" value="" required="true"> </div>
+							 <div class="form-group"> 
+							 		<label for="exampleInputEmail1">Service Name</label> 
+							 		<input type="text" class="form-control" id="sername" name="sername" placeholder="Service Name" value="" required="true"> 
+							 </div>
 							 <div class="form-group"> <label for="exampleInputEmail1">Service Description</label> <textarea type="text" class="form-control" id="sername" name="serdesc" placeholder="Service Name" value="" required="true"></textarea> </div>
 							  <div class="form-group"> <label for="exampleInputPassword1">Cost</label> <input type="text" id="cost" name="cost" class="form-control" placeholder="Cost" value="" required="true"> </div>
 							<div class="form-group"> <label for="exampleInputEmail1">Images</label> <input type="file" class="form-control" id="image" name="image" value="" required="true"> </div>
-							  <button type="submit" name="submit" class="btn btn-default">Add</button> </form> 
+							  <button type="submit" name="submit" class="btn btn-default">Add</button> 
+							</form> 
 						
 							  <br>
 							  <div class="form-group"> <label for="exampleInputEmail1"><a href="manage-services.php">Manage Services</a></label></div>
