@@ -246,7 +246,7 @@ while ($row=mysqli_fetch_array($ret)) {
 
 
 <script>
-    $('#services').on('change', function (){
+    $('#services').on('change', function (){    
         $('#services-container #services-options').remove();
         var opt = $(this).val();
 
