@@ -259,6 +259,7 @@ while ($row=mysqli_fetch_array($ret)) {
                 $.each(result, function (i, v) {;
                     $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
                     $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
+                    $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
                 });
             }
         })
