@@ -11,7 +11,7 @@
     $time_arr = [];
 
     while ($row=mysqli_fetch_array($ret)) {
-        $time_arr[] = $row['ServiceName'];
+        $time_arr[] = array('id' => $row['ID'], 'name' => $row['ServiceName'], 'price' => $row['Cost']);
         $cnt=$cnt+1;
     }
 

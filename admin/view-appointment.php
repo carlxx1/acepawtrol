@@ -8,7 +8,7 @@ include('includes/dbconnection.php');
 if(isset($_POST['submit']))
   {
     
-    $cid=$_GET['viewid'];
+    $cid=$_GET['viewid']; 
       $remark=$_POST['remark'];
       $status=$_POST['status'];
    $query=mysqli_query($con, "update  tblbook set Remark='$remark',Status='$status' where ID='$cid'");
@@ -73,21 +73,31 @@ if(isset($_POST['submit']))
 						
 						<h4>View Appointment:</h4>
 						<?php
-$cid=$_GET['viewid'];
-$ret=mysqli_query($con,"select tbluser.FirstName,tbluser.LastName,tbluser.Email,tbluser.MobileNumber,tblbook.ID as bid,tblbook.AptNumber,tblbook.AptDate,tblbook.AptTime,tblbook.appt_to,tblbook.Message,tblbook.BookingDate,tblbook.Remark,tblbook.Status,tblbook.RemarkDate from tblbook join tbluser on tbluser.ID=tblbook.UserID where tblbook.ID='$cid'");
-$cnt=1;
+              $cid = $_GET['viewid'];
+              $ret = mysqli_query($con,"select tbluser.FirstName,tbluser.LastName,tbluser.Email,tbluser.MobileNumber,
+                                              tblbook.ID as bid,tblbook.AptNumber,tblbook.AptDate,tblbook.AptTime,tblbook.appt_to,tblbook.Message,tblbook.BookingDate,tblbook.Remark,tblbook.Status,tblbook.RemarkDate,
+                                              tblbookservice.price, tblservices.ServiceName, tblservices.type
+                                        from tblbook 
+                                        join tbluser on tbluser.ID=tblbook.UserID
+                                        join tblbookservice on tblbookservice.book_id=tblbook.ID
+                                        join tblservices on tblservices.ID = tblbookservice.service_id
+                                        where tblbook.ID='$cid'");
+              $cnt = 1;
+
+
+
 while ($row=mysqli_fetch_array($ret)) {
 
 ?>
 						<table class="table table-bordered">
 							<tr>
-    <th>Appointment Number</th>
-    <td><?php  echo $row['AptNumber'];?></td>
-  </tr>
-  <tr>
-<th>Name</th>
-    <td><?php  echo $row['FirstName'];?> <?php  echo $row['LastName'];?></td>
-  </tr>
+                <th>Appointment Number</th>
+                <td><?php  echo $row['AptNumber'];?></td>
+              </tr>
+              <tr>
+                <th>Name</th>
+                <td><?php  echo $row['FirstName'];?> <?php  echo $row['LastName'];?></td>
+              </tr>
 
 <tr>
     <th>Email</th>

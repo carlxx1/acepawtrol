@@ -8,32 +8,43 @@ if (strlen($_SESSION['bpmsuid']==0)) {
   header('location:logout.php');
   } else{
 
-if(isset($_POST['submit']))
-  {
-    $uid=$_SESSION['bpmsuid'];
-    $adate=$_POST['adate'];
-    $appointment_time=$_POST['time'];
+if(isset($_POST['submit'])) {
+    $transaction_no = date('YmdHis');
+    $uid = $_SESSION['bpmsuid'];
+    $adate = $_POST['adate'];
+    $appointment_time = $_POST['time'];
     $aptnumber = mt_rand(100000000, 999999999);
-    $msg=$_POST['message'];
+    $msg = $_POST['message'];
     $atime = $_POST['appoint_time'].':00:00';
     $end_time = $_POST['appoint_time'] + 1 . ':00:00';
     $type = 'online';
     
-    // echo $atime. " ". $end_time;
-    // echo "<script>alert('$end_time');</script>";
+    $services = $_POST['service'];
+    
+    $query = mysqli_query($con,"insert into tblbook(transaction_no, UserID,AptNumber,AptDate,AptTime,Message,appt_to,type
+    ) values('$transaction_no', '$uid','$aptnumber','$adate','$atime','$msg','$end_time', '$type')");
 
-    $query=mysqli_query($con,"insert into tblbook(UserID,AptNumber,AptDate,AptTime,Message,appt_to,type
-    ) value('$uid','$aptnumber','$adate','$atime','$msg','$end_time', $type)");
 
-    if ($query) {
-$ret=mysqli_query($con,"select AptNumber from tblbook where tblbook.UserID='$uid' order by ID desc limit 1;");
-$result=mysqli_fetch_array($ret);
-$_SESSION['aptno']=$result['AptNumber'];
- echo "<script>window.location.href='thank-you.php'</script>";  
+
+    if (mysqli_affected_rows($con) ) {
+        $book_last_id = mysqli_insert_id($con);
+
+        foreach($services as $service) {
+            $price_query = mysqli_query($con,"select Cost from tblservices where tblservices.ID='$service' order by ID desc limit 1;");
+            $price_query_result = mysqli_fetch_array($price_query);
+            $price = $price_query_result['Cost'];
+            $query_service = mysqli_query($con,"insert into tblbookservice(book_id, service_id, price) value('$book_last_id','$service',$price)");
+        }
+
+        $ret=mysqli_query($con,"select AptNumber from tblbook where tblbook.UserID='$uid' order by ID desc limit 1;");
+        $result=mysqli_fetch_array($ret);
+        $_SESSION['aptno']=$result['AptNumber'];
+        echo "<script>window.location.href='thank-you.php'</script>";  
   }
   else
     {
-      echo '<script>alert("Something Went Wrong. Please try again")</script>';
+        echo "Error: " . mysqli_error($con);
+    //   echo '<script>alert("Something Went Wrong. Please try again")</script>';
     }
 
   
@@ -106,12 +117,11 @@ $(function () {
             <div class="d-grid contact-view">
                 <div class="cont-details">
                     <?php
+                        $ret=mysqli_query($con,"select * from tblpage where PageType='contactus' ");
+                        $cnt=1;
+                        while ($row=mysqli_fetch_array($ret)) {
 
-$ret=mysqli_query($con,"select * from tblpage where PageType='contactus' ");
-$cnt=1;
-while ($row=mysqli_fetch_array($ret)) {
-
-?>
+                    ?>
                     <div class="cont-top">
                         <div class="cont-left text-center">
                             <span class="fa fa-phone text-primary"></span>
@@ -150,15 +160,10 @@ while ($row=mysqli_fetch_array($ret)) {
                     </div>
                <?php } ?> </div>
                 <div class="map-content-9 mt-lg-0 mt-4">
-                    <form method="post">
-
-
-                    
-
+                    <form method="post" id="frmAppointment">
                       <div style="padding-top: 30px;">
                             <label>Select Services</label>
-                            
-                            <select id="services">
+                            <select id="services" required>
                                 <option value="">Select Type of Services:</option>
                                 <option value="haircut">Haircut Only</option>
                                 <option value="full_groom">Full Groom</option>
@@ -169,67 +174,28 @@ while ($row=mysqli_fetch_array($ret)) {
                         <div id="services-container">
                             <div id="services-options"></div>
                         </div>
-                           
-
-                          <div id="sub-category" style="padding-top: 30px;">
-                 
-                  </div>
-
-
-
-
-                    
+                        <div id="sub-category" style="padding-top: 30px;"> </div>
                         <div style="padding-top: 30px;">
                             <label>Appointment Date</label>
-                            
-                            <input class="form-control appointment_date" placeholder="Select Date" type="date" name="adate" id='adate' required="true"></div>
+                            <input class="form-control appointment_date" placeholder="Select Date" type="date" name="adate" id='adate' required="true">
+                        </div>
                            
 
                         <div style="padding-top: 30px;">
-                        
-
-
-                            
-                            <!-- <input class="form-control appointment_time" placeholder="Select Time" type="time" name="atime" id='atime' required="true"></div>
- -->
- <label for="time">Appointment Time <br/>(Opening Hours 9:00 am - 7:00 pm)</label>
- 
- <!-- <label id="time" type="text" list="times" class="block border border-grey-light w-full p-3 rounded mb-4" name="time" placeholder="Select Time"> </label></div> -->
-                           <div> <select id="times" disabled name="appoint_time"> </div>
-                              <option value="" hidden>Available Time</option>
-                            </select>
-
+                            <!-- <input class="form-control appointment_time" placeholder="Select Time" type="time" name="atime" id='atime' required="true"></div> -->
+                            <label for="time">Appointment Time <br/>(Opening Hours 9:00 am - 7:00 pm)</label>
+                            <!-- <label id="time" type="text" list="times" class="block border border-grey-light w-full p-3 rounded mb-4" name="time" placeholder="Select Time"> </label></div> -->
+                           <div> 
+                                <select id="times" disabled name="appoint_time"> 
+                                <option value="" hidden>Available Time</option>
+                                </select>
+                            </div>
                            
                            
 
                         <div style="padding-top: 30px;">
                         <textarea class="form-control" id="message" name="message" placeholder="Message" required=""></textarea></div>
-                        <br>
-
-                        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                          
-                        
-
-                 
-                      
-                      <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-                      <!-- <script>
-                          config = {
-                                        enableTime: true,
-                                        noCalendar: true,
-                                        dateFormat: "H:i",
-                                        minTime: "9:00 am",
-                                        maxTime: "19:00 pm",
-
-
-                                    }
-                            flatpickr("input[type=time]", config);
-                      </script> -->
-
-                       
-
-                        </body> </table> 
-                        <form>   
+                        <br> 
                         <button type="submit" class="btn btn-contact" name="submit">Make an Appointment</button>
                     </form>
                 </div>
@@ -244,26 +210,40 @@ while ($row=mysqli_fetch_array($ret)) {
     <span class="fa fa-long-arrow-up"></span>
 </button>
 
-
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
     $('#services').on('change', function (){    
         $('#services-container #services-options').remove();
         var opt = $(this).val();
 
         $.ajax({
-            type : 'GET',
+            type : 'GET', 
             url  : 'get_services.php',
             data : { 'service' : opt },
             success : function (response) {
                 result = JSON.parse(response);
-                $.each(result, function (i, v) {;
-                    $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
-                    $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
-                    $('#services-container').append('<div id="services-options"><label><input type="radio" name="service" value="'+v+'">'+v+'</label></div>');
+                $.each(result, function (i, v) {
+                    if(opt != 'alacarte') {
+                        $('#services-container').append('<div id="services-options"><label><input type="radio" name="service[]" value="'+v.id+'">'+v.name + '(₱' + v.price +') </label></div>');
+                    }
+                    else {
+                        $('#services-container').append('<div id="services-options"><label><input type="checkbox" name="service[]" value="'+v.id+'">'+v.name + '(₱' + v.price +') </label></div>');
+                    }
                 });
             }
         })
-    })
+    });
+    // $("#frmAppointment").submit(function(){
+    //     var selected_service = $('#services').val();
+    //     if(selected_service == 'alacarte') {
+    //         var checked = $("#frmText input:checked").length > 0;
+    //         if (!checked){
+    //             alert("Please check at least one checkbox");
+    //             return false;
+    //         }
+    //     }
+    // });
 </script>
 
 <script>
@@ -355,7 +335,7 @@ $(function(){
           $("#times").attr("disabled",true)
         }
     });
-  </script>
+</script>
 <!-- /move top -->
 </body>
 
